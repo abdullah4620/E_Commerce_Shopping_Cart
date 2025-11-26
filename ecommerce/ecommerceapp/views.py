@@ -95,11 +95,15 @@ def handlerequest(request):
     # paytm will send you post request here
     form = request.POST
     response_dict = {}
+    checksum = None
     for i in form.keys():
         response_dict[i] = form[i]
         if i == 'CHECKSUMHASH':
             checksum = form[i]
 
+    if checksum is None:
+        return render(request, 'paymentstatus.html', {'response': response_dict})
+    
     verify = Checksum.verify_checksum(response_dict, MERCHANT_KEY, checksum)
     if verify:
         if response_dict['RESPCODE'] == '01':
@@ -130,16 +134,19 @@ def profile(request):
         return redirect('/auth/login')
     currentuser=request.user.username
     items=Orders.objects.filter(email=currentuser)
-    rid=""
+    status=[]
     for i in items:
         print(i.oid)
         # print(i.order_id)
-        myid=i.oid
-        rid=myid.replace("ShopyCart","")
-        print(rid)
-    status=OrderUpdate.objects.filter(order_id=int(rid))
-    for j in status:
-        print(j.update_desc)
+        if i.oid:
+            myid=i.oid
+            rid=myid.replace("ShopyCart","")
+            print(rid)
+            if rid:
+                order_status=OrderUpdate.objects.filter(order_id=int(rid))
+                for j in order_status:
+                    print(j.update_desc)
+                status.extend(order_status)
 
    
     context ={"items":items,"status":status}
