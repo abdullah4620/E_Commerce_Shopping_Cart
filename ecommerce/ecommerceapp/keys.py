@@ -1,2 +1,0 @@
-MID="INTEGR78374859373459"
-MK="rjv@Ygk@0*F!Gf@n"
